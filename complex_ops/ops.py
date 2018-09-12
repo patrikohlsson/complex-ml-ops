@@ -141,3 +141,24 @@ class CBatchNormalization(ke.layers.Layer):
             y = tf.complex(self.batch_norm_real(tf.real(x)),
                            self.batch_norm_imag(tf.imag(x)))
         return y
+
+class CDropout(ke.layers.Layer):
+    def __init__(self, factor, use_magnitude=False, **kwargs):
+        self.use_magnitude = use_magnitude
+        self.dropout_real = ke.layers.Dropout(factor)
+        self.dropout_imag = ke.layers.Dropout(factor)
+        super(CDropout, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        super(CDropout, self).build(input_shape)
+
+    def call(self, x, training=None):
+        if self.use_magnitude:
+            y_mag = tf.abs(x)
+            y_phase = tf.angle(x)
+            y_mag = self.dropout_real(y_mag)
+            y = tf.complex(y_mag, 0.) * tf.exp(tf.complex(0., y_phase))
+        else:
+            y = tf.complex(self.dropout_real(tf.real(x)),
+                           self.dropout_imag(tf.imag(x)))
+        return y
