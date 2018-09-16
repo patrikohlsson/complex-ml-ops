@@ -99,6 +99,9 @@ class CDense(ke.layers.Layer):
             y = y + tf.complex(self.real_bias, self.imag_bias)
         return y
 
+    def compute_output_shape(self, input_shape):
+        return input_shape[:-1] + (self.output_dim,)
+
 
 class CActivation(ke.layers.Layer):
     def __init__(self, activation, use_magnitude=False, **kwargs):
@@ -119,6 +122,9 @@ class CActivation(ke.layers.Layer):
             y = tf.complex(self.activation(tf.real(x)),
                            self.activation(tf.imag(x)))
         return y
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
 
 
 class CBatchNormalization(ke.layers.Layer):
@@ -142,6 +148,10 @@ class CBatchNormalization(ke.layers.Layer):
                            self.batch_norm_imag(tf.imag(x)))
         return y
 
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+
 class CDropout(ke.layers.Layer):
     def __init__(self, factor, use_magnitude=False, **kwargs):
         self.use_magnitude = use_magnitude
@@ -162,3 +172,6 @@ class CDropout(ke.layers.Layer):
             y = tf.complex(self.dropout_real(tf.real(x)),
                            self.dropout_imag(tf.imag(x)))
         return y
+
+    def compute_output_shape(self, input_shape):
+        return input_shape
