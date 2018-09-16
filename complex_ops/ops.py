@@ -46,6 +46,7 @@ class CDense(ke.layers.Layer):
         self.output_dim = output_dim
         self.real_input = real_input
         self.polar_mode = polar_mode
+        self.use_bias = use_bias
         self.kernel_initializer = kernel_initializer
         super(CDense, self).__init__(**kwargs)
 
@@ -91,16 +92,30 @@ class CDense(ke.layers.Layer):
             w = tf.complex(self.real_kernel, 0.) * \
                 tf.exp(tf.complex(0., self.imag_kernel))
             y = tf.tensordot(x, w, [[-1], [0]])
-            y = y + tf.complex(self.real_bias, 0.) * \
-                tf.exp(tf.complex(0., self.imag_bias))
+            if self.use_bias:
+                y = y + tf.complex(self.real_bias, 0.) * \
+                    tf.exp(tf.complex(0., self.imag_bias))
         else:
             w = tf.complex(self.real_kernel, self.imag_kernel)
             y = tf.tensordot(x, w, [[-1], [0]])
-            y = y + tf.complex(self.real_bias, self.imag_bias)
+            if self.use_bias:
+                y = y + tf.complex(self.real_bias, self.imag_bias)
         return y
 
     def compute_output_shape(self, input_shape):
         return input_shape[:-1] + (self.output_dim,)
+    
+    def get_config(self):
+        config = {
+            'output_dim': self.output_dim,
+            'output_dim': self.output_dim,
+            'real_input': self.real_input,
+            'polar_mode': self.polar_mode,
+            'use_bias': self.use_bias,
+            'kernel_initializer': self.kernel_initializer
+        }
+        base_config = super(CDense, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
 
 
 class CActivation(ke.layers.Layer):
