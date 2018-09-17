@@ -73,16 +73,17 @@ class CDense(ke.layers.Layer):
                                            initializer=imag_initializer,
                                            dtype=tf.float32,
                                            trainable=True)
-        self.real_bias = self.add_weight(name='real_bias',
-                                         shape=(self.output_dim,),
-                                         dtype=tf.float32,
-                                         initializer='zero',
-                                         trainable=True)
-        self.imag_bias = self.add_weight(name='imag_bias',
-                                         shape=(self.output_dim,),
-                                         dtype=tf.float32,
-                                         initializer='zero',
-                                         trainable=True)
+        if self.use_bias:
+            self.real_bias = self.add_weight(name='real_bias',
+                                            shape=(self.output_dim,),
+                                            dtype=tf.float32,
+                                            initializer='zero',
+                                            trainable=True)
+            self.imag_bias = self.add_weight(name='imag_bias',
+                                            shape=(self.output_dim,),
+                                            dtype=tf.float32,
+                                            initializer='zero',
+                                            trainable=True)
         super(CDense, self).build(input_shape)
 
     def call(self, x):
