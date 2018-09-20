@@ -53,6 +53,10 @@ def dft_matrix(n_fft):
     return W
 
 
+def calculate_frames(duration, window_length, hop_length):
+    return int(np.ceil((duration - window_length) / hop_length))
+
+
 class CDense(ke.layers.Layer):
     def __init__(self, output_dim, real_input=False, polar_mode=False, use_bias=True, kernel_initializer=None, **kwargs):
         self.output_dim = output_dim
@@ -87,15 +91,15 @@ class CDense(ke.layers.Layer):
                                            trainable=True)
         if self.use_bias:
             self.real_bias = self.add_weight(name='real_bias',
-                                            shape=(self.output_dim,),
-                                            dtype=tf.float32,
-                                            initializer='zero',
-                                            trainable=True)
+                                             shape=(self.output_dim,),
+                                             dtype=tf.float32,
+                                             initializer='zero',
+                                             trainable=True)
             self.imag_bias = self.add_weight(name='imag_bias',
-                                            shape=(self.output_dim,),
-                                            dtype=tf.float32,
-                                            initializer='zero',
-                                            trainable=True)
+                                             shape=(self.output_dim,),
+                                             dtype=tf.float32,
+                                             initializer='zero',
+                                             trainable=True)
         super(CDense, self).build(input_shape)
 
     def call(self, x):
