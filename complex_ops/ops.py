@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 ke = tf.keras
 
@@ -39,6 +40,17 @@ def cdense(x, dim, norm=False, actf=None, complex_activation=False, name=None, u
                     x = tf.complex(actf(tf.abs(x)), 0.) * \
                         tf.exp(tf.complex(0., tf.angle(x)))
     return x
+
+
+def dft_matrix(n_fft):
+    w = tf.cast(tf.exp(-2. * np.pi * 1j / n_fft), tf.complex64)
+    k = tf.range(n_fft, dtype=tf.float32)
+    j = tf.reshape(k, [1, -1])
+    j = j[:, :(n_fft//2+1)]
+    k = tf.reshape(k, [-1, 1])
+    W = w ** tf.complex(k * j, 0.) / \
+        tf.complex(tf.sqrt(tf.to_float(n_fft)), 0.)
+    return W
 
 
 class CDense(ke.layers.Layer):
@@ -105,7 +117,7 @@ class CDense(ke.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape[:-1] + (self.output_dim,)
-    
+
     def get_config(self):
         config = {
             'output_dim': self.output_dim,
