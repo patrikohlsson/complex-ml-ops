@@ -207,3 +207,31 @@ class CDropout(ke.layers.Layer):
 
     def compute_output_shape(self, input_shape):
         return input_shape
+
+class CTrainableDFT(ke.layers.Layer):
+    def __init__(self, output_dim, **kwargs):
+        self.output_dim = output_dim
+
+        super(CTrainableDFT, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.k_increment = self.add_weight(name='k_increment',
+                                           shape=(1, self.output_dim),
+                                           dtype=tf.float32,
+                                           trainable=True)
+        self.i = tf.reshape(tf.range(input_shape[-1], dtype=tf.float32), [-1, 1])
+        self.k = tf.cumsum(tf.exp(self.k_increment), axis=-1)
+
+        self.w = tf.exp(tf.complex(0., 2 * np.pi * self.i * self.k))
+
+        super(CTrainableDFT, self).build(input_shape)
+    
+    def call(self, x):
+        if x.dtype == tf.float32:
+            x = tf.complex(x, 0.)
+        
+        y = tf.tensordot(x, self.w, [[-1], [0]])
+        return y
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape[:-1] + (self.output_dim,)
