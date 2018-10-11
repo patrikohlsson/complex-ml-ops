@@ -219,7 +219,7 @@ class CTrainableDFT(ke.layers.Layer):
                                            shape=(1, self.output_dim),
                                            dtype=tf.float32,
                                            trainable=True)
-        self.i = tf.reshape(tf.range(input_shape[-1], dtype=tf.float32), [-1, 1])
+        self.i = tf.reshape(tf.range(input_shape[-1].value, dtype=tf.float32), [-1, 1])
         self.k = tf.cumsum(tf.exp(self.k_increment), axis=-1)
 
         self.w = tf.exp(tf.complex(0., 2 * np.pi * self.i * self.k))
